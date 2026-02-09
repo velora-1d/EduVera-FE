@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ToastContainer } from "@/components/ui/Toast";
+import OfflineIndicator from "@/components/OfflineIndicator";
 
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
@@ -47,8 +48,10 @@ export default function RootLayout({
             {children}
           </div>
           <ToastContainer />
+          <OfflineIndicator />
         </AuthProvider>
       </body>
     </html>
   );
 }
+

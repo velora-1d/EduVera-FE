@@ -5,6 +5,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 const api = axios.create({
     baseURL: API_BASE_URL,
+    timeout: 30000, // 30 seconds timeout
     headers: {
         "Content-Type": "application/json",
     },
@@ -39,6 +40,12 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
     (response) => response,
     (error) => {
+        // Timeout error
+        if (error.code === "ECONNABORTED") {
+            error.userMessage = "Permintaan timeout. Server terlalu lama merespons, silakan coba lagi.";
+            return Promise.reject(error);
+        }
+
         // Network error (no response from server)
         if (!error.response) {
             error.userMessage = "Tidak dapat terhubung ke server. Periksa koneksi internet Anda.";
