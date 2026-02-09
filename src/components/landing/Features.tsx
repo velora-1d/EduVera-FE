@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { contentApi } from "@/lib/api";
+import { landingApi } from "@/services/landingApi";
 import { motion } from "framer-motion";
 import * as LucideIcons from "lucide-react";
 
@@ -45,14 +45,14 @@ export const Features = () => {
   useEffect(() => {
     const loadContent = async () => {
       try {
-        const data = await contentApi.get("landing_features");
-        if (data && data.value) {
-          if (data.value.school && Array.isArray(data.value.school)) {
-            setSchoolFeatures(data.value.school);
-          }
-          if (data.value.pesantren && Array.isArray(data.value.pesantren)) {
-            setPesantrenFeatures(data.value.pesantren);
-          }
+        const schoolData = await landingApi.get("features_school");
+        if (schoolData && schoolData.value && Array.isArray(schoolData.value)) {
+          setSchoolFeatures(schoolData.value);
+        }
+
+        const pesantrenData = await landingApi.get("features_pesantren");
+        if (pesantrenData && pesantrenData.value && Array.isArray(pesantrenData.value)) {
+          setPesantrenFeatures(pesantrenData.value);
         }
       } catch (error) {
         console.error("Failed to load features content", error);

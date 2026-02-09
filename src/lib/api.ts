@@ -11,6 +11,14 @@ const api = axios.create({
     },
 });
 
+export const publicApi = axios.create({
+    baseURL: API_BASE_URL,
+    timeout: 30000,
+    headers: {
+        "Content-Type": "application/json",
+    },
+});
+
 // Add interceptor to include auth token and sandbox tenant header
 api.interceptors.request.use((config) => {
     if (typeof window !== "undefined") {

@@ -2,27 +2,71 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, Sparkles, TrendingUp, Zap, Star, School, BookOpen, Building2, Gem, Coffee, Shield, Users } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { pricing, planMetadata, formatPrice, getSavings, getDailyPrice, getOriginalPrice, PlanType, TierType } from "@/lib/pricing";
+import { landingApi } from "@/services/landingApi";
+import { pricing, planMetadata, PlanType, TierType } from "@/lib/pricing";
 
 export const Pricing = () => {
   const [isAnnual, setIsAnnual] = useState(true);
   const [selectedTier, setSelectedTier] = useState<TierType>("basic");
+  const [dynamicPricing, setDynamicPricing] = useState(pricing);
+
+  useEffect(() => {
+    const loadPricing = async () => {
+      try {
+        const data = await landingApi.get("pricing_plans");
+        if (data && data.value) {
+          // Validate structure roughly
+          if (data.value.sekolah && data.value.pesantren) {
+            setDynamicPricing(data.value);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to load pricing", error);
+      }
+    };
+    loadPricing();
+  }, []);
 
   const iconMap: Record<string, any> = {
-    TrendingUp,
-    Sparkles,
-    Zap,
-    Star,
-    School,
-    BookOpen,
-    Building2,
+    TrendingUp, Sparkles, Zap, Star, School, BookOpen, Building2,
   };
 
   const plans: PlanType[] = ["sekolah", "pesantren", "hybrid"];
   const billing = isAnnual ? "annual" : "monthly";
+
+  // Local helper to use dynamic data
+  const getPrice = (plan: PlanType, tier: TierType, bill: "monthly" | "annual") => {
+    return dynamicPricing[plan][tier][bill];
+  };
+
+  const getOriginalPrice = (plan: PlanType, tier: TierType, bill: "monthly" | "annual") => {
+    // Logic mark-up original price (same as lib/pricing.ts)
+    // Sekolah/Pesantren: Basic +200k (monthly), +2jt (annual). Premium +300k, +3jt
+    // For simplicity and consistency with lib, we can just use a multiplier or static offset if we want dynamic original price too.
+    // Or, we can assume original price is also dynamic? Currently migration doesn't have original price.
+    // Let's use a simple multiplier logic: 
+    // Monthly: Price / 0.6 (40% discount)
+    // Annual: (Price / 12) * 12 / 0.5 (50% discount)
+
+    // Better approach: Use the static originalPricing from lib as BASE, 
+    // but if dynamic price changes significantly, original price looks weird.
+    // Let's calculate 'Original' as Dynamic Price * 1.6 (approx 40% discount shown)
+
+    const current = getPrice(plan, tier, bill);
+    if (bill === "annual") return Math.round(current * 1.5); // 33% off shown (actually 50%) -> wait, 1.5 * price -> savings = 0.5 * price = 33%
+    return Math.round(current * 1.4); // 30% off (approx)
+  };
+
+  const formattedPrice = (p: number) => {
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      minimumFractionDigits: 0,
+    }).format(p);
+  }
 
   return (
     <section id="harga" className="py-24 bg-slate-900/50 relative">
@@ -131,10 +175,13 @@ export const Pricing = () => {
         >
           {plans.map((planId, i) => {
             const meta = planMetadata[planId];
-            const price = pricing[planId][selectedTier][billing];
+            const price = getPrice(planId, selectedTier, billing);
             const originalPrice = getOriginalPrice(planId, selectedTier, billing);
-            const daily = getDailyPrice(planId, selectedTier, billing);
-            const savings = getSavings(planId, selectedTier, billing);
+
+            // Daily calc
+            const daily = Math.round(billing === "annual" ? price / 365 : price / 30);
+
+            const savings = originalPrice - price;
             const savingsPercent = Math.round((savings / originalPrice) * 100);
             const PlanIcon = iconMap[meta.icon] || TrendingUp;
             const isHybrid = planId === "hybrid";
@@ -202,13 +249,13 @@ export const Pricing = () => {
                       Hemat {savingsPercent}%
                     </span>
                     <span className="text-xs bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full font-medium">
-                      {formatPrice(savings)}
+                      {formattedPrice(savings)}
                     </span>
                   </div>
 
                   {/* Original price (strikethrough) */}
                   <div className="text-slate-500 text-sm mb-1">
-                    <span className="line-through">Rp {(originalPrice / 1000).toLocaleString("id-ID")}K</span>
+                    <span className="line-through">{(originalPrice / 1000).toLocaleString("id-ID")}K</span>
                     <span className="ml-2 text-red-400 font-medium">-{savingsPercent}%</span>
                   </div>
 
