@@ -177,13 +177,13 @@ export const Docs = () => {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-xl transition-colors"
             >
-              💬 Chat WhatsApp
+              <LucideIcons.MessageCircle className="w-5 h-5" /> Chat WhatsApp
             </a>
             <a
               href="mailto:support@eduvera.id"
               className="inline-flex items-center gap-2 px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white font-medium rounded-xl border border-white/10 transition-colors"
             >
-              ✉️ Email Support
+              <LucideIcons.Mail className="w-5 h-5" /> Email Support
             </a>
           </div>
         </motion.div>

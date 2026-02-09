@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, Sparkles, TrendingUp, Zap, Star, School, BookOpen, Building2 } from "lucide-react";
+import { Check, Sparkles, TrendingUp, Zap, Star, School, BookOpen, Building2, Gem } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -51,8 +51,8 @@ export const Pricing = () => {
             <button
               onClick={() => setSelectedTier("basic")}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${selectedTier === "basic"
-                  ? "bg-emerald-500/20 border border-emerald-500 text-emerald-400"
-                  : "bg-slate-800 border border-slate-700 text-slate-400 hover:border-slate-600"
+                ? "bg-emerald-500/20 border border-emerald-500 text-emerald-400"
+                : "bg-slate-800 border border-slate-700 text-slate-400 hover:border-slate-600"
                 }`}
             >
               <Star className="w-4 h-4" />
@@ -62,8 +62,8 @@ export const Pricing = () => {
             <button
               onClick={() => setSelectedTier("premium")}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${selectedTier === "premium"
-                  ? "bg-amber-500/20 border border-amber-500 text-amber-400"
-                  : "bg-slate-800 border border-slate-700 text-slate-400 hover:border-slate-600"
+                ? "bg-amber-500/20 border border-amber-500 text-amber-400"
+                : "bg-slate-800 border border-slate-700 text-slate-400 hover:border-slate-600"
                 }`}
             >
               <Zap className="w-4 h-4" />
@@ -100,8 +100,8 @@ export const Pricing = () => {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
               className={`inline-flex items-center gap-2 px-4 py-2 rounded-full mb-8 ${selectedTier === "premium"
-                  ? "bg-amber-500/10 border border-amber-500/30"
-                  : "bg-emerald-500/10 border border-emerald-500/30"
+                ? "bg-amber-500/10 border border-amber-500/30"
+                : "bg-emerald-500/10 border border-emerald-500/30"
                 }`}
             >
               {selectedTier === "premium" ? (
@@ -111,7 +111,7 @@ export const Pricing = () => {
               )}
               <span className={`text-sm font-medium ${selectedTier === "premium" ? "text-amber-400" : "text-emerald-400"}`}>
                 {selectedTier === "premium"
-                  ? "✨ Premium: Payment Gateway otomatis untuk SPP/Syahriah!"
+                  ? <><Sparkles className="w-4 h-4 inline mr-1" /> Premium: Payment Gateway otomatis untuk SPP/Syahriah!</>
                   : isAnnual
                     ? "Hemat hingga 48% dengan bayar Tahunan!"
                     : "Mulai dari Rp 16.600/hari saja!"
@@ -150,36 +150,36 @@ export const Pricing = () => {
                   },
                 }}
                 className={`relative bg-slate-950 p-8 rounded-2xl border h-full ${isHybrid
-                    ? selectedTier === "premium"
-                      ? "border-amber-500 ring-4 ring-amber-500/10"
-                      : "border-purple-500 ring-4 ring-purple-500/10"
-                    : "border-slate-800"
+                  ? selectedTier === "premium"
+                    ? "border-amber-500 ring-4 ring-amber-500/10"
+                    : "border-purple-500 ring-4 ring-purple-500/10"
+                  : "border-slate-800"
                   } flex flex-col`}
               >
                 {/* Badge */}
                 {isHybrid && (
                   <div className={`absolute -top-4 left-1/2 -translate-x-1/2 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg ${selectedTier === "premium"
-                      ? "bg-gradient-to-r from-amber-500 to-amber-400 shadow-amber-500/30"
-                      : "bg-gradient-to-r from-purple-500 to-purple-400 shadow-purple-500/30"
+                    ? "bg-gradient-to-r from-amber-500 to-amber-400 shadow-amber-500/30"
+                    : "bg-gradient-to-r from-purple-500 to-purple-400 shadow-purple-500/30"
                     }`}>
-                    💎 BEST VALUE
+                    <Gem className="w-4 h-4 inline mr-1" /> BEST VALUE
                   </div>
                 )}
                 {selectedTier === "premium" && !isHybrid && (
                   <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-amber-500 to-amber-400 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg shadow-amber-500/30">
-                    ⚡ AUTO PG
+                    <Zap className="w-4 h-4 inline mr-1" /> AUTO PG
                   </div>
                 )}
 
                 {/* Header */}
                 <div className="flex items-center gap-3 mb-4">
                   <div className={`p-2 rounded-xl ${isHybrid
-                      ? selectedTier === "premium" ? "bg-amber-500/10" : "bg-purple-500/10"
-                      : selectedTier === "premium" ? "bg-amber-500/10" : "bg-emerald-500/10"
+                    ? selectedTier === "premium" ? "bg-amber-500/10" : "bg-purple-500/10"
+                    : selectedTier === "premium" ? "bg-amber-500/10" : "bg-emerald-500/10"
                     }`}>
                     <PlanIcon className={`w-5 h-5 ${isHybrid
-                        ? selectedTier === "premium" ? "text-amber-400" : "text-purple-400"
-                        : selectedTier === "premium" ? "text-amber-400" : "text-emerald-400"
+                      ? selectedTier === "premium" ? "text-amber-400" : "text-purple-400"
+                      : selectedTier === "premium" ? "text-amber-400" : "text-emerald-400"
                       }`} />
                   </div>
                   <div>
@@ -242,12 +242,12 @@ export const Pricing = () => {
                   <Button
                     variant="default"
                     className={`w-full font-bold py-6 rounded-xl transition-all ${isHybrid
-                        ? selectedTier === "premium"
-                          ? "bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-600 hover:to-amber-500 shadow-lg shadow-amber-500/20"
-                          : "bg-gradient-to-r from-purple-500 to-purple-400 hover:from-purple-600 hover:to-purple-500 shadow-lg shadow-purple-500/20"
-                        : selectedTier === "premium"
-                          ? "bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-600 hover:to-amber-500 shadow-lg shadow-amber-500/20"
-                          : "bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-600 hover:to-emerald-500 shadow-lg shadow-emerald-500/20"
+                      ? selectedTier === "premium"
+                        ? "bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-600 hover:to-amber-500 shadow-lg shadow-amber-500/20"
+                        : "bg-gradient-to-r from-purple-500 to-purple-400 hover:from-purple-600 hover:to-purple-500 shadow-lg shadow-purple-500/20"
+                      : selectedTier === "premium"
+                        ? "bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-600 hover:to-amber-500 shadow-lg shadow-amber-500/20"
+                        : "bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-600 hover:to-emerald-500 shadow-lg shadow-emerald-500/20"
                       } text-white`}
                   >
                     Pilih {meta.title} {selectedTier === "premium" ? "Premium" : "Basic"}
