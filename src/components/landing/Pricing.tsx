@@ -1,11 +1,11 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, Sparkles, TrendingUp, Zap, Star, School, BookOpen, Building2, Gem } from "lucide-react";
+import { Check, Sparkles, TrendingUp, Zap, Star, School, BookOpen, Building2, Gem, Coffee, Shield, Users } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { pricing, planMetadata, formatPrice, getSavings, getDailyPrice, PlanType, TierType } from "@/lib/pricing";
+import { pricing, planMetadata, formatPrice, getSavings, getDailyPrice, getOriginalPrice, PlanType, TierType } from "@/lib/pricing";
 
 export const Pricing = () => {
   const [isAnnual, setIsAnnual] = useState(true);
@@ -68,7 +68,7 @@ export const Pricing = () => {
             >
               <Zap className="w-4 h-4" />
               <span className="font-medium">Premium</span>
-              <span className="text-xs opacity-70">Auto PG</span>
+              <span className="text-xs opacity-70">Bayar Otomatis</span>
             </button>
           </div>
 
@@ -111,7 +111,7 @@ export const Pricing = () => {
               )}
               <span className={`text-sm font-medium ${selectedTier === "premium" ? "text-amber-400" : "text-emerald-400"}`}>
                 {selectedTier === "premium"
-                  ? <><Sparkles className="w-4 h-4 inline mr-1" /> Premium: Payment Gateway otomatis untuk SPP/Syahriah!</>
+                  ? <><Sparkles className="w-4 h-4 inline mr-1" /> Premium: Pembayaran SPP/Syahriah otomatis via GoPay, OVO, DANA!</>
                   : isAnnual
                     ? "Hemat hingga 48% dengan bayar Tahunan!"
                     : "Mulai dari Rp 16.600/hari saja!"
@@ -132,8 +132,10 @@ export const Pricing = () => {
           {plans.map((planId, i) => {
             const meta = planMetadata[planId];
             const price = pricing[planId][selectedTier][billing];
+            const originalPrice = getOriginalPrice(planId, selectedTier, billing);
             const daily = getDailyPrice(planId, selectedTier, billing);
             const savings = getSavings(planId, selectedTier, billing);
+            const savingsPercent = Math.round((savings / originalPrice) * 100);
             const PlanIcon = iconMap[meta.icon] || TrendingUp;
             const isHybrid = planId === "hybrid";
 
@@ -194,12 +196,23 @@ export const Pricing = () => {
 
                 {/* Pricing Block */}
                 <div className="mb-6 p-4 bg-slate-900/50 rounded-xl border border-white/5">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-xs bg-red-500/20 text-red-400 px-2 py-0.5 rounded-full font-medium">
-                      Hemat {formatPrice(savings)}
+                  {/* Savings badges */}
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-xs bg-red-500/20 text-red-400 px-2 py-0.5 rounded-full font-medium animate-pulse">
+                      Hemat {savingsPercent}%
+                    </span>
+                    <span className="text-xs bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full font-medium">
+                      {formatPrice(savings)}
                     </span>
                   </div>
 
+                  {/* Original price (strikethrough) */}
+                  <div className="text-slate-500 text-sm mb-1">
+                    <span className="line-through">Rp {(originalPrice / 1000).toLocaleString("id-ID")}K</span>
+                    <span className="ml-2 text-red-400 font-medium">-{savingsPercent}%</span>
+                  </div>
+
+                  {/* Current price */}
                   <div className="flex items-baseline gap-1">
                     <span className={`text-sm font-bold ${selectedTier === "premium" ? "text-amber-400" : "text-emerald-400"}`}>Rp</span>
                     <AnimatePresence mode="wait">
@@ -216,13 +229,16 @@ export const Pricing = () => {
                     <span className="text-slate-500 text-sm">/{isAnnual ? "tahun" : "bulan"}</span>
                   </div>
 
-                  <div className="flex items-center gap-3 mt-2 text-xs text-slate-500">
-                    <span>
-                      <span className={`font-medium ${selectedTier === "premium" ? "text-amber-400" : "text-emerald-400"}`}>
+                  {/* Daily price breakdown */}
+                  <div className="flex items-center gap-3 mt-3 pt-3 border-t border-white/5 text-xs text-slate-400">
+                    <span className="flex items-center gap-1">
+                      <span className={`font-bold text-base ${selectedTier === "premium" ? "text-amber-400" : "text-emerald-400"}`}>
                         Rp {daily.toLocaleString("id-ID")}
                       </span>
-                      /hari
+                      <span>/hari</span>
                     </span>
+                    <span className="text-slate-500">—</span>
+                    <span className="italic flex items-center gap-1"><Coffee className="w-3 h-3" /> Harga secangkir kopi</span>
                   </div>
                 </div>
 
@@ -271,8 +287,29 @@ export const Pricing = () => {
           </p>
           <p className="text-slate-400 text-sm">
             <Zap className="w-4 h-4 inline mr-1 text-amber-400" />
-            <strong>Premium:</strong> Payment Gateway otomatis (GoPay, OVO, DANA, Transfer, QRIS)
+            <strong>Premium:</strong> Pembayaran otomatis via GoPay, OVO, DANA, Transfer Bank, QRIS
           </p>
+        </motion.div>
+
+        {/* Trust Indicators */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: false }}
+          className="mt-12 flex flex-wrap justify-center gap-6 lg:gap-12"
+        >
+          <div className="flex items-center gap-2 text-slate-400">
+            <Users className="w-5 h-5 text-emerald-400" />
+            <span className="text-sm"><strong className="text-white">500+</strong> Lembaga Terdaftar</span>
+          </div>
+          <div className="flex items-center gap-2 text-slate-400">
+            <Shield className="w-5 h-5 text-emerald-400" />
+            <span className="text-sm"><strong className="text-white">99.9%</strong> Uptime Terjamin</span>
+          </div>
+          <div className="flex items-center gap-2 text-slate-400">
+            <Zap className="w-5 h-5 text-amber-400" />
+            <span className="text-sm"><strong className="text-white">24/7</strong> Support Premium</span>
+          </div>
         </motion.div>
       </div>
     </section>
