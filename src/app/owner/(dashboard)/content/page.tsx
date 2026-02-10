@@ -9,8 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Save, Plus, Trash2, Loader2, RefreshCcw } from "lucide-react";
 import { showToast } from "@/components/ui/Toast";
 
-// Helper for currency input
-const CurrencyInput = ({ value, onChange, label }: { value: number; onChange: (val: number) => void; label: string }) => (
+// Helper input harga
+const InputHarga = ({ value, onChange, label }: { value: number; onChange: (val: number) => void; label: string }) => (
     <div className="space-y-1">
         <Label className="text-xs text-slate-400">{label}</Label>
         <div className="relative">
@@ -48,7 +48,7 @@ export default function ContentPage() {
             if (s?.value) setSchoolFeatures(s.value);
             if (ps?.value) setPesantrenFeatures(ps.value);
         } catch (error) {
-            console.error("Failed to load content", error);
+            console.error("Gagal memuat data konten", error);
             showToast("Gagal memuat data konten", "error");
         } finally {
             setLoading(false);
@@ -59,27 +59,21 @@ export default function ContentPage() {
         loadData();
     }, []);
 
-    const handleSavePricing = async () => {
+    const handleSimpanHarga = async () => {
         setSaving(true);
         try {
             await landingApi.update("pricing_plans", pricing);
-            showToast("Harga berhasil disimpan!", "success");
+            showToast("Harga paket berhasil disimpan!", "success");
         } catch (error) {
-            showToast("Gagal menyimpan harga", "error");
+            showToast("Gagal menyimpan harga paket", "error");
         } finally {
             setSaving(false);
         }
     };
 
-    const handleSaveSchoolFeatures = async () => {
+    const handleSimpanFiturSekolah = async () => {
         setSaving(true);
         try {
-            // Wrap in array object if needed by backend structure, but implementation used direct array previously
-            // Backend adapter handles wrapping if we send just array?
-            // Let's check backend logic... adapter handles map/slice.
-            // If we send raw array, it might be wrapped in {value: []} by adapter Set method?
-            // Actually adapter Set method receives interface{}, marshals it.
-            // So we should just send the array as is, backend will store it as JSON.
             await landingApi.update("features_school", schoolFeatures);
             showToast("Fitur Sekolah berhasil disimpan!", "success");
         } catch (error) {
@@ -89,7 +83,7 @@ export default function ContentPage() {
         }
     };
 
-    const handleSavePesantrenFeatures = async () => {
+    const handleSimpanFiturPesantren = async () => {
         setSaving(true);
         try {
             await landingApi.update("features_pesantren", pesantrenFeatures);
@@ -113,19 +107,19 @@ export default function ContentPage() {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-2xl font-bold text-white">Landing Page Editor</h2>
+                    <h2 className="text-2xl font-bold text-white">Editor Landing Page</h2>
                     <p className="text-slate-400">Atur konten dinamis halaman depan.</p>
                 </div>
                 <Button variant="outline" onClick={loadData} disabled={loading || saving}>
                     <RefreshCcw className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`} />
-                    Refresh
+                    Muat Ulang
                 </Button>
             </div>
 
-            {/* Custom Tabs */}
+            {/* Tab Menu */}
             <div className="flex space-x-1 bg-slate-900 border border-slate-800 p-1 rounded-lg">
                 {[
-                    { id: "pricing", label: "Pricing Plans" },
+                    { id: "pricing", label: "Harga Paket" },
                     { id: "features_school", label: "Fitur Sekolah" },
                     { id: "features_pesantren", label: "Fitur Pesantren" }
                 ].map((tab) => (
@@ -133,8 +127,8 @@ export default function ContentPage() {
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
                         className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${activeTab === tab.id
-                                ? "bg-emerald-600 text-white shadow"
-                                : "text-slate-400 hover:text-white hover:bg-slate-800"
+                            ? "bg-emerald-600 text-white shadow"
+                            : "text-slate-400 hover:text-white hover:bg-slate-800"
                             }`}
                     >
                         {tab.label}
@@ -142,17 +136,17 @@ export default function ContentPage() {
                 ))}
             </div>
 
-            {/* PRICING TAB */}
+            {/* TAB HARGA PAKET */}
             {activeTab === "pricing" && (
                 <Card className="bg-slate-900 border-slate-800">
                     <CardHeader className="flex flex-row items-center justify-between">
                         <div>
-                            <CardTitle className="text-white">Edit Harga Paket</CardTitle>
-                            <CardDescription>Update harga bulanan dan tahunan.</CardDescription>
+                            <CardTitle className="text-white">Atur Harga Paket</CardTitle>
+                            <CardDescription>Edit harga bulanan dan tahunan untuk setiap paket langganan.</CardDescription>
                         </div>
-                        <Button onClick={handleSavePricing} disabled={saving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                        <Button onClick={handleSimpanHarga} disabled={saving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
                             {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-                            Simpan Perubahan
+                            Simpan Harga
                         </Button>
                     </CardHeader>
                     <CardContent className="space-y-8">
@@ -160,35 +154,35 @@ export default function ContentPage() {
                             <div key={plan} className="p-4 border border-slate-800 rounded-lg bg-slate-950/50">
                                 <h3 className="text-lg font-bold text-white capitalize mb-4 flex items-center gap-2">
                                     <span className={`w-2 h-8 rounded-full ${plan === 'hybrid' ? 'bg-purple-500' : plan === 'sekolah' ? 'bg-blue-500' : 'bg-emerald-500'}`}></span>
-                                    Plan {plan}
+                                    Paket {plan}
                                 </h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    {/* Basic Tier */}
+                                    {/* Tier Basic */}
                                     <div className="space-y-4">
-                                        <h4 className="font-semibold text-slate-300 border-b border-slate-800 pb-2">Basic Tier</h4>
+                                        <h4 className="font-semibold text-slate-300 border-b border-slate-800 pb-2">Tier Basic</h4>
                                         <div className="grid grid-cols-2 gap-4">
-                                            <CurrencyInput
+                                            <InputHarga
                                                 label="Bulanan"
                                                 value={pricing[plan]?.basic?.monthly || 0}
                                                 onChange={(val) => setPricing({ ...pricing, [plan]: { ...pricing[plan], basic: { ...pricing[plan].basic, monthly: val } } })}
                                             />
-                                            <CurrencyInput
+                                            <InputHarga
                                                 label="Tahunan"
                                                 value={pricing[plan]?.basic?.annual || 0}
                                                 onChange={(val) => setPricing({ ...pricing, [plan]: { ...pricing[plan], basic: { ...pricing[plan].basic, annual: val } } })}
                                             />
                                         </div>
                                     </div>
-                                    {/* Premium Tier */}
+                                    {/* Tier Premium */}
                                     <div className="space-y-4">
-                                        <h4 className="font-semibold text-amber-400 border-b border-slate-800 pb-2">Premium Tier</h4>
+                                        <h4 className="font-semibold text-amber-400 border-b border-slate-800 pb-2">Tier Premium</h4>
                                         <div className="grid grid-cols-2 gap-4">
-                                            <CurrencyInput
+                                            <InputHarga
                                                 label="Bulanan"
                                                 value={pricing[plan]?.premium?.monthly || 0}
                                                 onChange={(val) => setPricing({ ...pricing, [plan]: { ...pricing[plan], premium: { ...pricing[plan].premium, monthly: val } } })}
                                             />
-                                            <CurrencyInput
+                                            <InputHarga
                                                 label="Tahunan"
                                                 value={pricing[plan]?.premium?.annual || 0}
                                                 onChange={(val) => setPricing({ ...pricing, [plan]: { ...pricing[plan], premium: { ...pricing[plan].premium, annual: val } } })}
@@ -202,24 +196,24 @@ export default function ContentPage() {
                 </Card>
             )}
 
-            {/* SCHOOL FEATURES TAB */}
+            {/* TAB FITUR SEKOLAH */}
             {activeTab === "features_school" && (
-                <FeatureEditor
+                <EditorFitur
                     title="Fitur Sekolah"
                     items={schoolFeatures}
                     setItems={setSchoolFeatures}
-                    onSave={handleSaveSchoolFeatures}
+                    onSave={handleSimpanFiturSekolah}
                     saving={saving}
                 />
             )}
 
-            {/* PESANTREN FEATURES TAB */}
+            {/* TAB FITUR PESANTREN */}
             {activeTab === "features_pesantren" && (
-                <FeatureEditor
+                <EditorFitur
                     title="Fitur Pesantren"
                     items={pesantrenFeatures}
                     setItems={setPesantrenFeatures}
-                    onSave={handleSavePesantrenFeatures}
+                    onSave={handleSimpanFiturPesantren}
                     saving={saving}
                 />
             )}
@@ -227,19 +221,19 @@ export default function ContentPage() {
     );
 }
 
-// Sub-component for Feature Editing
-const FeatureEditor = ({ title, items, setItems, onSave, saving }: { title: string, items: any[], setItems: any, onSave: any, saving: boolean }) => {
-    const addFeature = () => {
-        setItems([...items, { title: "New Feature", desc: "Description here", icon: "Star" }]);
+// Sub-komponen untuk Editing Fitur
+const EditorFitur = ({ title, items, setItems, onSave, saving }: { title: string, items: any[], setItems: any, onSave: any, saving: boolean }) => {
+    const tambahFitur = () => {
+        setItems([...items, { title: "Fitur Baru", desc: "Deskripsi fitur", icon: "Star" }]);
     };
 
-    const removeFeature = (index: number) => {
+    const hapusFitur = (index: number) => {
         const newItems = [...items];
         newItems.splice(index, 1);
         setItems(newItems);
     };
 
-    const updateFeature = (index: number, key: string, value: string) => {
+    const updateFitur = (index: number, key: string, value: string) => {
         const newItems = [...items];
         newItems[index] = { ...newItems[index], [key]: value };
         setItems(newItems);
@@ -250,11 +244,11 @@ const FeatureEditor = ({ title, items, setItems, onSave, saving }: { title: stri
             <CardHeader className="flex flex-row items-center justify-between">
                 <div>
                     <CardTitle className="text-white">{title}</CardTitle>
-                    <CardDescription>Edit daftar fitur yang ditampilkan.</CardDescription>
+                    <CardDescription>Edit daftar fitur yang ditampilkan di landing page.</CardDescription>
                 </div>
                 <div className="flex gap-2">
-                    <Button variant="outline" onClick={addFeature}>
-                        <Plus className="w-4 h-4 mr-2" /> Tambah
+                    <Button variant="outline" onClick={tambahFitur}>
+                        <Plus className="w-4 h-4 mr-2" /> Tambah Fitur
                     </Button>
                     <Button onClick={onSave} disabled={saving} className="bg-emerald-600 hover:bg-emerald-700 text-white">
                         {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
@@ -263,6 +257,11 @@ const FeatureEditor = ({ title, items, setItems, onSave, saving }: { title: stri
                 </div>
             </CardHeader>
             <CardContent className="space-y-4">
+                {items.length === 0 && (
+                    <div className="text-center py-12 text-slate-500">
+                        Belum ada fitur. Klik "Tambah Fitur" untuk menambahkan.
+                    </div>
+                )}
                 {items.map((item, i) => (
                     <div key={i} className="flex gap-4 items-start p-4 border border-slate-800 rounded bg-slate-950/30">
                         <div className="space-y-2 flex-1">
@@ -271,15 +270,15 @@ const FeatureEditor = ({ title, items, setItems, onSave, saving }: { title: stri
                                     <Label className="text-xs text-slate-400">Judul</Label>
                                     <Input
                                         value={item.title}
-                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateFeature(i, "title", e.target.value)}
+                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateFitur(i, "title", e.target.value)}
                                         className="bg-slate-900 border-slate-700"
                                     />
                                 </div>
                                 <div className="space-y-1">
-                                    <Label className="text-xs text-slate-400">Icon Name (Lucide)</Label>
+                                    <Label className="text-xs text-slate-400">Nama Icon (Lucide)</Label>
                                     <Input
                                         value={item.icon}
-                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateFeature(i, "icon", e.target.value)}
+                                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateFitur(i, "icon", e.target.value)}
                                         className="bg-slate-900 border-slate-700"
                                     />
                                 </div>
@@ -288,12 +287,12 @@ const FeatureEditor = ({ title, items, setItems, onSave, saving }: { title: stri
                                 <Label className="text-xs text-slate-400">Deskripsi</Label>
                                 <Input
                                     value={item.desc}
-                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateFeature(i, "desc", e.target.value)}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateFitur(i, "desc", e.target.value)}
                                     className="bg-slate-900 border-slate-700"
                                 />
                             </div>
                         </div>
-                        <Button variant="ghost" size="icon" onClick={() => removeFeature(i)} className="text-slate-500 hover:text-red-400">
+                        <Button variant="ghost" size="icon" onClick={() => hapusFitur(i)} className="text-slate-500 hover:text-red-400">
                             <Trash2 className="w-4 h-4" />
                         </Button>
                     </div>

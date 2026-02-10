@@ -77,7 +77,7 @@ export default function OwnerLayout({ children }: { children: React.ReactNode })
     }
 
     return (
-        <div className="min-h-screen bg-slate-950 flex">
+        <div className="dark min-h-screen bg-slate-950 flex">
             {/* Mobile sidebar backdrop */}
             {sidebarOpen && (
                 <div
