@@ -28,27 +28,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const router = useRouter();
 
     const setTokenAndStore = (token: string) => {
-        if (typeof window !== "undefined") {
-            localStorage.setItem("access_token", token);
-        }
+        // No-op: Token is now handling via HttpOnly Cookie
+        // We keep this function signature to avoid breaking other components
     };
 
     const refresh = async () => {
         try {
             if (typeof window === "undefined") return;
 
-            const token = localStorage.getItem("access_token");
-            if (!token) {
-                setIsLoading(false);
-                return;
-            }
-
-            // Check if this is an owner session (owner skips /auth/me)
+            // Check if this is an owner session
             const isOwner = localStorage.getItem("is_owner") === "true";
             const storedUser = localStorage.getItem("auth_user");
 
             if (isOwner && storedUser) {
-                // For owner, load from local storage (no /auth/me endpoint for owner)
                 try {
                     const parsedUser = JSON.parse(storedUser);
                     setUser(parsedUser);
@@ -56,38 +48,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                         setTenant(parsedUser.tenant as Tenant);
                     }
                 } catch (e) {
-                    // Invalid stored user
-                    localStorage.removeItem("access_token");
                     localStorage.removeItem("is_owner");
                     localStorage.removeItem("auth_user");
                 }
             } else {
-                // Normal user, verify with backend
-                const response = await authApi.me();
-                if (response.user) {
-                    setUser(response.user);
-                    if (response.user.tenant) {
-                        setTenant(response.user.tenant as Tenant);
+                try {
+                    const response = await authApi.me();
+                    if (response.user) {
+                        setUser(response.user);
+                        if (response.user.tenant) {
+                            setTenant(response.user.tenant as Tenant);
+                        }
                     }
+                } catch (e) {
+                    setUser(null);
+                    setTenant(null);
                 }
             }
         } catch {
-            if (typeof window !== "undefined") {
-                localStorage.removeItem("access_token");
-                // Don't clear owner flags here blindly, but if auth fails it usually means token invalid
-                // However, for 404 on /auth/me it might be a valid token just wrong endpoint.
-                // But here we only catch if authApi.me() fails.
-            }
+            setUser(null);
         } finally {
             setIsLoading(false);
         }
     };
 
     const login = async (email: string, password: string) => {
-        const response = await authApi.login({ email, password });
-        if (typeof window !== "undefined") {
-            localStorage.setItem("access_token", response.access_token);
-        }
+        await authApi.login({ email, password });
+        // Token is set by backend in HttpOnly cookie
         await refresh();
     };
 
@@ -98,7 +85,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             // Continue logout even if API call fails
         }
         if (typeof window !== "undefined") {
-            localStorage.removeItem("access_token");
+            // Cookie is cleared by backend, we just clear client state
+            // localStorage.removeItem("access_token"); 
             localStorage.removeItem("owner_token");
             localStorage.removeItem("is_owner");
             localStorage.removeItem("auth_user");

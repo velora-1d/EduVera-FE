@@ -6,6 +6,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 const api = axios.create({
     baseURL: API_BASE_URL,
     timeout: 30000, // 30 seconds timeout
+    withCredentials: true, // Send cookies with requests
     headers: {
         "Content-Type": "application/json",
     },
@@ -20,20 +21,9 @@ export const publicApi = axios.create({
 });
 
 // Add interceptor to include auth token and sandbox tenant header
+// Add interceptor for sandbox tenant header or other global configs
 api.interceptors.request.use((config) => {
     if (typeof window !== "undefined") {
-        // Check for normal auth token first
-        let token = localStorage.getItem("access_token");
-
-        // During onboarding, use the onboarding_token if no access_token exists
-        if (!token) {
-            token = localStorage.getItem("onboarding_token");
-        }
-
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-
         // Owner sandbox mode: include sandbox tenant header
         const isOwner = localStorage.getItem("is_owner") === "true";
         const sandboxTenant = localStorage.getItem("sandbox_tenant");
@@ -76,7 +66,7 @@ api.interceptors.response.use(
 
                     // Only redirect if NOT on a login page already
                     if (!isLoginPage) {
-                        localStorage.removeItem("access_token");
+                        // localStorage.removeItem("access_token"); // Token is in cookie now
                         if (isOwnerPath) {
                             window.location.href = "/owner/login";
                         } else {
