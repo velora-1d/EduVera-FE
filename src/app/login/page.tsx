@@ -16,7 +16,7 @@ export default function LoginPage() {
     const [showPassword, setShowPassword] = useState(false);
     const [isMainDomain, setIsMainDomain] = useState(false);
     const [subdomain, setSubdomain] = useState<string | null>(null);
-    const { login } = useAuth();
+    const { login, isAuthenticated } = useAuth();
     const router = useRouter();
 
     // Check if accessing from main domain or subdomain
@@ -37,6 +37,13 @@ export default function LoginPage() {
             }
         }
     }, []);
+
+    // Redirect to dashboard if already authenticated and on subdomain
+    useEffect(() => {
+        if (!loading && isAuthenticated && !isMainDomain && subdomain) {
+            router.replace("/pesantren"); // Default dashboard
+        }
+    }, [isAuthenticated, isMainDomain, subdomain, loading, router]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

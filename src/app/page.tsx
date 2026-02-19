@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/hooks/useAuth";
 
 import { About } from "@/components/landing/About";
 import { CTA } from "@/components/landing/CTA";
@@ -16,6 +18,32 @@ import { Testimonials } from "@/components/landing/Testimonials";
 
 export default function LandingPage() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { isAuthenticated, isLoading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && !isLoading) {
+      const hostname = window.location.hostname;
+      const mainDomains = ["eduvera.ve-lora.my.id", "www.eduvera.ve-lora.my.id", "localhost"];
+      const isMainDomain = mainDomains.includes(hostname);
+
+      if (!isMainDomain) {
+        // Visitor is on a tenant subdomain -> Redirect them!
+        if (isAuthenticated) {
+          // If logged in, go to dashboard (defaulting to pesantren for now, or determining from auth)
+          // ideally we rely on the login page's redirect logic or a smarter router, 
+          // but redirecting to /pesantren is a safe bet for most users in this context, 
+          // or /owner/login if we were smarter. 
+          // Let's just send to /login which will handle the "logged in" state? 
+          // No, /login page just shows login form usually unless we add logic there too.
+          // Let's send to /pesantren for now.
+          router.replace("/pesantren");
+        } else {
+          router.replace("/login");
+        }
+      }
+    }
+  }, [isAuthenticated, isLoading, router]);
 
   const navLinks = [
     { href: "#produk", label: "Produk" },
